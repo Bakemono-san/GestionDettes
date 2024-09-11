@@ -12,6 +12,22 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
+/**
+ * @OA\Schema(
+ *     schema="StoreUserRequest",
+ *     type="object",
+ *     required={"nom", "prenom", "login", "role_id", "etat", "password"},
+ *     properties={
+ *         @OA\Property(property="nom", type="string", description="User's last name"),
+ *         @OA\Property(property="prenom", type="string", description="User's first name"),
+ *         @OA\Property(property="login", type="string", description="Login for the user"),
+ *         @OA\Property(property="role_id", type="integer", description="Role ID for the user"),
+ *         @OA\Property(property="etat", type="string", description="User's status", enum={"true", "false"}),
+ *         @OA\Property(property="password", type="string", description="Password for the user"),
+ *         @OA\Property(property="password_confirmation", type="string", description="Password confirmation")
+ *     }
+ * )
+ */
 class StoreUserRequest extends FormRequest
 {
     use RestResponseTrait;
@@ -38,6 +54,7 @@ class StoreUserRequest extends FormRequest
             // 'email' => 'required|email|unique:users,email',
             'etat' => 'required|in:true,false',
             'password' => ['confirmed', new CustumPasswordRule()],
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 
@@ -56,6 +73,10 @@ class StoreUserRequest extends FormRequest
             'etat.required' => 'L\'état est obligatoire.',
             'etat.boolean' => 'L\'état doit être une valeur booléenne.',
             'password.confirmed' => 'Les mots de passe ne correspondent pas.',
+            'photo.required' => 'La photo est obligatoire.',
+            'photo.image' => "La photo doit être une image.",
+            'photo.mimes' => "La photo doit être au format jpeg, png, jpg ou gif.",
+            'photo.max' => "La photo ne doit pas dépasser 2048 Ko.",
         ];
     }
 

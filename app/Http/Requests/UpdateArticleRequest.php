@@ -11,7 +11,16 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-
+/**
+ * @OA\Schema(
+ *     schema="UpdateArticleRequest",
+ *     type="object",
+ *     @OA\Property(property="libelle", type="string", maxLength=255, example="Article X"),
+ *     @OA\Property(property="user_id", type="integer", example=1),
+ *     @OA\Property(property="prix", type="number", example=150.75),
+ *     @OA\Property(property="quantite", type="integer", example=5)
+ * )
+ */
 class UpdateArticleRequest extends FormRequest
 {
     use RestResponseTrait;

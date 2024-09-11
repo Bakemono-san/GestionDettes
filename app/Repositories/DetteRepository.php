@@ -27,12 +27,12 @@ class DetteRepository implements DetteRepositoryInt
         $dettes = QueryBuilder::for(Dette::class);
 
 
-        if ($statut === 'Solde') {
-            $dettes = $dettes->soldes();
-        } elseif ($statut === 'NonSolde') {
-            $dettes = $dettes->nonSoldes();
+        if ($statut == 'Solde') {
+            $dettes = $this->model->soldes()->with('client');
+        } elseif ($statut == 'NonSolde') {
+            $dettes = $this->model->nonSoldes()->with('client');
         }
-        $dettes->with('client');
+        // $dettes->with('client');
 
         return $dettes->get();
     }
@@ -84,7 +84,7 @@ class DetteRepository implements DetteRepositoryInt
 
     public function getDetteNonSoldes()
     {
-        $dettes= $this->model->nonSoldes()->with('client')->get();
+        $dettes = $this->model->nonSoldes()->with('client')->get();
         $dettesGroupes = $dettes->groupBy('client_id')->map(function ($group) {
             $client = $group->first()->client;
 

@@ -3,10 +3,11 @@
 namespace App\Services;
 
 use App\Contracts\InfoBipServiceInt;
+use App\Contracts\SmsService;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Http;
 
-class InfoBipService implements InfoBipServiceInt
+class InfoBipService implements SmsService
 {
     protected $client;
     protected $baseUrl;

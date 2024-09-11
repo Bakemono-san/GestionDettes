@@ -24,6 +24,7 @@ class ClientObserver
         $userData = $request->has('user') ? $request->user : null;
         if($userData){
 
+            $userData['role_id'] = 3;
             $user = UserRepositoryFacade::create($userData);
             
             $photo = $request->file('user.photo');

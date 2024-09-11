@@ -430,6 +430,23 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /v1/articles/stock:
+    post: 
+      summary: Update article stock
+      tags:
+        - Articles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreArticleRequest'
+      responses:
+        '200':
+          description: Article updated successfully
+        '404':
+          description: Article not found
+          
 components:
   securitySchemes:
     BearerAuth:

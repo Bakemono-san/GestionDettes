@@ -7,6 +7,22 @@ use App\Http\Requests\StorePaiementRequest;
 use App\Models\Paiement;
 use Illuminate\Http\Request;
 
+/**
+ * @OA\Info(
+ *     title="Paiement API",
+ *     version="1.0.0",
+ *     description="API for managing payments."
+ * )
+ *
+ * @OA\Tag(
+ *     name="Paiements",
+ *     description="Operations related to payments"
+ * )
+ *
+ * @OA\PathItem(
+ *     path="/api/paiements"
+ * )
+ */
 class PaiementController extends Controller
 {
     /**
@@ -27,6 +43,26 @@ class PaiementController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     */
+    /**
+     * @OA\Post(
+     *     path="/api/paiements",
+     *     tags={"Paiements"},
+     *     summary="Create a new payment",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/StorePaiementRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Payment created successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/Paiement")
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation error"
+     *     )
+     * )
      */
     public function store(StorePaiementRequest $request)
     {

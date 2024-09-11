@@ -36,7 +36,6 @@ Route::get('/test-email', function () {
 
 Route::get('/firebase', [FirebaseController::class, 'index']);
 Route::post('/firebase', [FirebaseController::class, 'store']);
-Route::get('/client/{id}', [ClientController::class, 'getClientWithDebtswithArticle'])->name('clients.getClientWithDebtswithArticle');
 
 // Route::middleware('auth:api')->post('/login', [AuthController::class, 'login']);
 
@@ -50,6 +49,7 @@ Route::middleware(['auth:api'])->prefix('v1')->group(function () {
     Route::post('/role', [RoleController::class, 'store']);
     
     
+    Route::get('/client/{id}', [ClientController::class, 'getClientWithDebtswithArticle'])->name('clients.getClientWithDebtswithArticle');
     Route::apiResource('/clients', ClientController::class)->only(['index', 'store','show']);
     Route::get('/clients/{id}/user', [ClientController::class, 'get'])->name('articlesWithUser');
     Route::get('/clients/{id}/dettes', [ClientController::class, 'getDettes']);

@@ -9,6 +9,22 @@ use App\Traits\RestResponseTrait;
 use Illuminate\Contracts\Validation\Validator as ValidationValidator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
+/**
+ * @OA\Schema(
+ *     schema="StorePaiementRequest",
+ *     type="object",
+ *     required={"montant"},
+ *     properties={
+ *         @OA\Property(
+ *             property="montant",
+ *             type="number",
+ *             format="float",
+ *             description="Amount of the payment",
+ *             example=100.50
+ *         )
+ *     }
+ * )
+ */
 class StorePaiementRequest extends FormRequest
 {
     use RestResponseTrait;

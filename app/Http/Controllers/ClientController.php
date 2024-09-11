@@ -18,15 +18,50 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Spatie\QueryBuilder\QueryBuilder;
 
+/**
+ * @OA\Tag(
+ *     name="Clients",
+ *     description="Gestion des clients"
+ * )
+ */
 class ClientController extends Controller
 {
     use RestResponseTrait;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->authorizeResource(Client::class, 'client');
     }
     /**
      * Display a listing of the resource.
+     */
+
+    /**
+     * @OA\Get(
+     *     path="/clients",
+     *     summary="Liste tous les clients",
+     *     tags={"Clients"},
+     *     @OA\Parameter(
+     *         name="filters",
+     *         in="query",
+     *         description="Filtres pour la recherche des clients",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Succès",
+     *         @OA\JsonContent(ref="#/components/schemas/ClientCollection")
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Erreur dans la requête"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Non autorisé"
+     *     )
+     * )
      */
     public function index(Request $request, User $user)
     {
@@ -40,6 +75,27 @@ class ClientController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     */
+
+    /**
+     * @OA\Post(
+     *     path="/clients",
+     *     summary="Création d'un nouveau client",
+     *     tags={"Clients"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/StoreClientRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Client créé avec succès",
+     *         @OA\JsonContent(ref="#/components/schemas/Client")
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Erreur dans la requête"
+     *     )
+     * )
      */
     public function store(StoreClientRequest $request, User $user)
     {
@@ -56,6 +112,30 @@ class ClientController extends Controller
     /**
      * Display the specified resource.
      */
+
+    /**
+     * @OA\Get(
+     *     path="/clients/{id}",
+     *     summary="Afficher un client spécifique",
+     *     tags={"Clients"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Identifiant du client",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Client retrouvé avec succès",
+     *         @OA\JsonContent(ref="#/components/schemas/ClientResource")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Client non trouvé"
+     *     )
+     * )
+     */
     public function show(string $id, User $user)
     {
         $this->authorize('view', $user);
@@ -68,19 +148,67 @@ class ClientController extends Controller
         return $this->sendResponse(new ClientResource($client), StateEnum::SUCCESS, 'client retrouve avec success', 200);
     }
 
+
     public function get(string $id, User $user)
     {
         $clients = ClientServiceFacade::get($id);
         return compact('clients');
     }
 
+    /**
+     * @OA\Get(
+     *     path="/clients/{id}/dettes",
+     *     summary="Obtenir les dettes d'un client",
+     *     tags={"Clients"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Identifiant du client",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Dettes retrouvées",
+     *         @OA\JsonContent(ref="#/components/schemas/DetteCollection")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Client non trouvé"
+     *     )
+     * )
+     */
     public function getDettes(string $id, User $user)
     {
         $client = ClientServiceFacade::dettes($id);
         return compact('client');
     }
 
-    public function getClientWithDebtswithArticle($id){
+    /**
+     * @OA\Get(
+     *     path="/clients/{id}/debts-with-article",
+     *     summary="Obtenir les dettes et articles d'un client",
+     *     tags={"Clients"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Identifiant du client",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Client avec dettes et articles retrouvés",
+     *         @OA\JsonContent(ref="#/components/schemas/ClientWithDebtsArticles")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Client non trouvé"
+     *     )
+     * )
+     */
+    public function getClientWithDebtswithArticle($id)
+    {
         $client = ClientServiceFacade::getClientWithDebtswithArticle($id);
         return compact('client');
     }

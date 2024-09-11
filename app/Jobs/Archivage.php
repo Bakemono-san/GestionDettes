@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Contracts\ArchiveServiceInt;
 use App\Facades\ClientRepositoryFacade;
 use App\Facades\FirebaseServiceFacade;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -13,8 +14,7 @@ use Illuminate\Support\Facades\Log;
 
 class Archivage implements ShouldQueue
 {
-    use Queueable;
-
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     /**
      * Create a new job instance.
      */
@@ -26,10 +26,10 @@ class Archivage implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(ArchiveServiceInt $archiveService): void
     {
         $clientDette = ClientRepositoryFacade::getClientWithDebtswithArticle();
-        FirebaseServiceFacade::store($clientDette);
+        $archiveService->archive($clientDette);
         Log::debug('Clients archivees avec succès');
     }
 }

@@ -8,6 +8,27 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
+/**
+ * @OA\Schema(
+ *     schema="StoreDetteRequest",
+ *     type="object",
+ *     required={"montant", "client_id", "articles"},
+ *     properties={
+ *         @OA\Property(property="montant", type="number"),
+ *         @OA\Property(property="client_id", type="integer"),
+ *         @OA\Property(
+ *             property="articles",
+ *             type="array",
+ *             @OA\Items(
+ *                 @OA\Property(property="id", type="integer"),
+ *                 @OA\Property(property="quantite", type="integer"),
+ *                 @OA\Property(property="prixVente", type="number")
+ *             )
+ *         ),
+ *         @OA\Property(property="paiement", type="object")
+ *     }
+ * )
+ */
 class StoreDetteRequest extends FormRequest
 {
     use RestResponseTrait;

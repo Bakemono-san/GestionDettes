@@ -4,8 +4,9 @@ namespace App\Services;
 
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Database;
+use App\Contracts\ArchiveServiceInt;
 
-class FirebaseService
+class FirebaseService implements ArchiveServiceInt
 {
     protected $database;
 
@@ -23,7 +24,7 @@ class FirebaseService
         return $this->database;
     }
 
-    public function store($request)
+    public function archive($request)
     {
         $newData = $this->database->getReference(date('Y-m-d H:i:s'))->push($request);
         return response()->json($newData->getValue());

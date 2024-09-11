@@ -16,6 +16,8 @@ class Dette extends Model
 
     protected $appends = ["montant_verse", "montant_restant"];
 
+    protected $hidden = ["id","created_at","updated_at"];
+
     public function getMontantVerseAttribute(){
         return $this->paiements()->sum('montant');
     }
@@ -44,7 +46,7 @@ class Dette extends Model
         return $query->whereHas('paiements', function ($q) {
             $q->select('dette_id')
                 ->groupBy('dette_id')
-                ->havingRaw('SUM(montant) >= dettes.montant');
+                ->havingRaw('SUM(montant) = dettes.montant');
         });
     }
 

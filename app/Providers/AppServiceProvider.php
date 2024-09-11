@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Contracts\ArchiveServiceInt;
 use App\Contracts\ArticleRepositoryImpl;
 use App\Contracts\ArticleServiceInt;
 use App\Contracts\ClientRepositoryInt;
@@ -12,6 +13,7 @@ use App\Contracts\InfoBipServiceInt;
 use App\Contracts\PaiementRepositoryInt;
 use App\Contracts\PaiementServiceInt;
 use App\Contracts\QrCodeServiceInt;
+use App\Contracts\SmsService;
 use App\Contracts\UploadImageServiceInt;
 use App\Contracts\UserRepositoryInt;
 use App\Contracts\UserServiceInt;
@@ -27,9 +29,11 @@ use App\Services\ClientService;
 use App\Services\DetteService;
 use App\Services\FirebaseService;
 use App\Services\InfoBipService;
+use App\Services\MongodbService;
 use App\Services\PaiementService;
 use App\Services\PdfService;
 use App\Services\QrCodeService;
+use App\Services\TwilioService;
 use App\Services\UploadImageService;
 use App\Services\UserService;
 use Illuminate\Support\ServiceProvider;
@@ -56,7 +60,22 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(PaiementRepositoryInt::class,PaiementRepository::class);
         $this->app->singleton(PaiementServiceInt::class,PaiementService::class);
         $this->app->singleton('firebase',FirebaseService::class);
-        $this->app->singleton(InfoBipServiceInt::class,InfoBipService::class);
+        $this->app->singleton(SmsService::class,function($app){
+            $SmsDriver = env('SmsDriver','infobip');
+            if ($SmsDriver == 'infobip') {
+                return new InfoBipService();
+            }
+
+            return new TwilioService();
+        });
+        $this->app->singleton(ArchiveServiceInt::class, function ($app) {
+            $Driver = env('DriverArchivage', 'firebase');
+            if ($Driver === 'firebase') {
+                return new FirebaseService();
+            }
+            return new MongodbService();
+
+        });
         $this->app->singleton(SendMail::class, function ($app) {
             // Ensure that parameters are available here
             return new SendMail($app['userData'], $app['pdf']);

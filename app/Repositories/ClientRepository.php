@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Contracts\ClientRepositoryInt;
+use App\Facades\DetteRepositoryFacade;
 use App\Models\Client;
 use App\Models\Dette;
 use App\Models\Scopes\TelephoneScope;
@@ -94,46 +95,42 @@ class ClientRepository implements ClientRepositoryInt
     }
 
     public function getClientWithDebtswithArticle()
-{
-    $clients = QueryBuilder::for(Client::class)
-        ->with(['dettes' => function ($query) {
-            // Only include settled debts
-            $query->soldes()->with('articles');
-        }])
-        ->get()
-        ->filter(function ($client) {
-            // Only include clients that have settled debts
-            return $client->dettes->isNotEmpty();
-        })
-        ->map(function ($client) {
-            // Wrap the client data within a 'client' key
-            return [
-                'client' => [
-                    'name' => $client->surname,
-                    'phone' => $client->telephone,
-                    'debts' => $client->dettes->map(function ($dette) {
-                        return [
-                            'amount' => $dette->montant,
-                            'status' => 'settled',
-                            'articles' => $dette->articles->mapWithKeys(function ($article) {
-                                return [
-                                    $article->id => [
-                                        'name' => $article->libelle,
-                                        'price' => $article->prix,
-                                    ]
-                                ];
-                            }),
-                        ];
-                    }),
-                ]
-            ];
-        });
+    {
+        $clients = QueryBuilder::for(Client::class)
+            ->with(['dettes' => function ($query) {
+                $query->soldes()->with('articles');
+            }])
+            ->get()
+            ->filter(function ($client) {
+                return $client->dettes->isNotEmpty();
+            })
+            ->map(function ($client) {
+                return [
+                    'client' => [
+                        'name' => $client->surname,
+                        'phone' => $client->telephone,
+                        'debts' => $client->dettes->map(function ($dette) {
+                            return [
+                                'amount' => $dette->montant,
+                                'status' => 'settled',
+                                'articles' => $dette->articles->mapWithKeys(function ($article) {
+                                    return [
+                                        $article->id => [
+                                            'name' => $article->libelle,
+                                            'price' => $article->prix,
+                                        ]
+                                    ];
+                                }),
+                                DetteRepositoryFacade::delete($dette->id)
 
-    // Return or output the result
-    echo $clients;
-    dd($clients);
+                            ];
+                        }),
+                    ]
+                ];
+            });
 
-    return $clients;
-}
+        // Return or output the result
 
+        return $clients;
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Contracts;
 
-interface InfoBipServiceInt
+interface SmsService
 {
     public function sendSms($phone, $message);
 }

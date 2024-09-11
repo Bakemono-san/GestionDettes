@@ -4,12 +4,30 @@ namespace App\Http\Requests;
 
 use App\Enums\StateEnum;
 use App\Rules\CustumPasswordRule;
+use App\Traits\RestResponseTrait;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
+/**
+ * @OA\Schema(
+ *     schema="userForClientRequest",
+ *     type="object",
+ *     required={"login", "password", "nom", "prenom", "etat", "role_id", "client_id"},
+ *     properties={
+ *         @OA\Property(property="login", type="string", description="Login for the user"),
+ *         @OA\Property(property="password", type="string", description="Password for the user"),
+ *         @OA\Property(property="nom", type="string", description="User's last name"),
+ *         @OA\Property(property="prenom", type="string", description="User's first name"),
+ *         @OA\Property(property="etat", type="string", description="User's status", enum={"true", "false"}),
+ *         @OA\Property(property="role_id", type="integer", description="Role ID for the user"),
+ *         @OA\Property(property="client_id", type="integer", description="Client ID to associate with the user")
+ *     }
+ * )
+ */
 class userForClientRequest extends FormRequest
 {
+    use RestResponseTrait;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -31,7 +49,7 @@ class userForClientRequest extends FormRequest
             "nom" => "required|string|max:255",
             "prenom" => "required|string|max:255",
             "etat" => "required|in:true,false",
-            "role_id" => "required|exists:roles,id",
+            // "role_id" => "required|exists:roles,id",
             "client_id" => "required|exists:clients,id"
         ];
     }

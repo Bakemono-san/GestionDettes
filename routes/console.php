@@ -1,6 +1,7 @@
 <?php
 
 use App\Jobs\Archivage;
+use App\Jobs\SaveToMongoJob;
 use App\Jobs\SendSms;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -22,5 +23,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 
-// Schedule::job(new Archivage)->everyMinute();
+Schedule::job(new Archivage())->everyMinute();
 Schedule::job(new SendSms)->everyMinute();

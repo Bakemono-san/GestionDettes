@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Exceptions;
 
 use App\Enums\StateEnum;
@@ -10,17 +9,11 @@ use Illuminate\Support\Facades\Log;
 class CloudinaryUploadException extends Exception
 {
     use RestResponseTrait;
-    protected $file;
 
-    public function __construct($message = "Cloudinary upload failed", $file = null)
+
+    public function __construct(string $message = "Cloudinary upload failed")
     {
         parent::__construct($message);
-        $this->file = $file;
-
-        // Log the error details
-        Log::error($message, [
-            'file' => $this->file,
-        ]);
     }
 
     /**
@@ -29,7 +22,7 @@ class CloudinaryUploadException extends Exception
     public function report()
     {
         // Custom reporting logic can go here if needed
-        Log::alert('CloudinaryUploadException occurred.', ['file' => $this->file]);
+        Log::alert('CloudinaryUploadException occurred.');
     }
 
     /**
@@ -37,6 +30,6 @@ class CloudinaryUploadException extends Exception
      */
     public function render($request)
     {
-        return $this->sendResponse(null,StateEnum::ECHEC,"Cloudinary upload failed", 400);
+        return $this->sendResponse(null, StateEnum::ECHEC, "Cloudinary upload failed", 400);
     }
 }

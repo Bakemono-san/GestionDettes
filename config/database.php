@@ -34,6 +34,11 @@ return [
     */
 
     'connections' => [
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'dsn' => env('DB_URL', 'mongodb+srv://safnabanopy:safnabanopy@cluster0.fa6xdiy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'),
+            'database' => 'GestionDette',
+        ],
 
         'sqlite' => [
             'driver' => 'sqlite',

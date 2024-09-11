@@ -12,6 +12,26 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 
+/**
+ * @OA\Schema(
+ *     schema="StoreClientRequest",
+ *     type="object",
+ *     required={"surname", "telephone"},
+ *     @OA\Property(property="surname", type="string", description="Nom du client"),
+ *     @OA\Property(property="adresse", type="string", description="Adresse du client"),
+ *     @OA\Property(property="telephone", type="string", description="Numéro de téléphone"),
+ *     @OA\Property(
+ *         property="user",
+ *         type="object",
+ *         @OA\Property(property="nom", type="string", description="Nom de l'utilisateur associé"),
+ *         @OA\Property(property="prenom", type="string", description="Prénom de l'utilisateur associé"),
+ *         @OA\Property(property="login", type="string", description="Login de l'utilisateur associé"),
+ *         @OA\Property(property="role_id", type="integer", description="Rôle de l'utilisateur"),
+ *         @OA\Property(property="password", type="string", description="Mot de passe de l'utilisateur"),
+ *         @OA\Property(property="photo", type="string", format="binary", description="Photo de l'utilisateur")
+ *     )
+ * )
+ */
 class StoreClientRequest extends FormRequest
 {
     use RestResponseTrait;
@@ -40,7 +60,6 @@ class StoreClientRequest extends FormRequest
             'user.nom' => ['required_with:user','string'],
             'user.prenom' => ['required_with:user','string'],
             'user.login' => ['required_with:user','string'],
-            'user.role_id' => ['required_with:user','integer', 'exists:roles,id'],
             'user.password' => ['required_with:user', new CustumPasswordRule(),'confirmed'],
 
         ];
@@ -73,9 +92,7 @@ class StoreClientRequest extends FormRequest
             'photo.required' => "La photo est obligatoire.",
             'photo.image' => "La photo doit être une image.",
             'photo.mimes' => "La photo doit être au format jpeg, png, jpg ou gif.",
-            'photo.max' => "La photo ne doit pas dépasser 2048 Ko.",
-            'user.role_id.exists' => "Le role doit exister.",
-            'user.role_id.required_with' => "Le role est obligatoire.",
+            'photo.max' => "La photo ne doit pas dépasser 2048 Ko."
         ];
     }
 

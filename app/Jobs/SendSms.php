@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Contracts\SmsService;
 use App\Facades\DetteRepositoryFacade;
 use App\Facades\InfoBipFacade;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -25,7 +26,7 @@ class SendSms implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(SmsService $smsService): void
     {
         $clients = DetteRepositoryFacade::getDetteNonSoldes();
         
@@ -34,9 +35,9 @@ class SendSms implements ShouldQueue
             $telephone = $client->telephone;
             $surname = $client->surname;
             $montantDette = $client->montant_restant;
-            $message = 'Bonjour '.$surname.' Vous nous devez  a ce jour '.$montantDette.' fcfa';
+            $message = 'Bonjour '.$surname.' Vous nous devez  a ce jour '.$montantDette.' fcfa. merci de bien vouloir regler votre dette avant la fin du mois';
 
-            InfoBipFacade::sendSms($telephone,$message);
+            $smsService->sendSms($telephone,$message);
         }
     }
 }
