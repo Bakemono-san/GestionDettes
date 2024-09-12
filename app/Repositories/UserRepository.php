@@ -67,4 +67,8 @@ class UserRepository implements UserRepositoryInt{
     public function findByLogin($login){
         return $this->model->where('login', $login)->first();
     }
+
+    public function getBoutiquiers(){
+        return $this->model->where('role_id', 2)->get();
+    }
 }

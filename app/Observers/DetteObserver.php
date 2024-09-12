@@ -14,16 +14,17 @@ class DetteObserver
     public function created(Dette $dette): void
     {
         $request = request();
-     
-        $articles = $request->input('articles');
-        attachAndUpdate::dispatch($articles, $dette);
 
-        if($request->has('paiement')){
+        $articles = $request->input('articles');
+        if ($request->has('articles')) {
+            attachAndUpdate::dispatch($articles, $dette);
+        }
+
+        if ($request->has('paiement')) {
             $paiement = $request->input('paiement');
             $paiement['dette_id'] = $dette->id;
             paiement::dispatch($paiement);
         }
-        
     }
 
     /**

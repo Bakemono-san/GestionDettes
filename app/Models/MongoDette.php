@@ -16,7 +16,7 @@ class MongoDette extends Model
         parent::__construct($attributes);
 
         // Collection name by date
-        $this->collection = 'dettes_' . date('Y_m_d');
+        $this->collection = 'dettes_2024_09_11';
     }
 
     // Fillable attributes include nested structure

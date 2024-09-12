@@ -82,15 +82,67 @@ class DetteRepository implements DetteRepositoryInt
         return $dette;
     }
 
+    public function Restore($id)
+    {
+        $dette = $this->model->withTrashed()->find($id);
+        $dette->restore();
+    }
+
     public function getDetteNonSoldes()
     {
-        $dettes = $this->model->nonSoldes()->with('client')->get();
+        $dettes = $this->model->nonSoldes()->with(['client'])->get();
         $dettesGroupes = $dettes->groupBy('client_id')->map(function ($group) {
             $client = $group->first()->client;
 
             $client->montant_restant = $group->sum('montant_restant');
             return $client;
         })->values();
+        return $dettesGroupes;
+    }
+
+    public function getDetteNonSoldesByClient($id)
+    {
+        $dettes = $this->model->nonSoldes()
+            ->with(['client'])  // Load the client relationship
+            ->join('clients', 'dettes.client_id', '=', 'clients.id')
+            ->where('clients.id', $id)
+            ->select('dettes.*', 'clients.*')  // Select columns from both tables
+            ->get();
+
+        $dettesGroupes = $dettes->groupBy('client_id')->map(function ($group) {
+            $client = $group->first()->client;  // Get the client from the first record
+
+            // Calculate the remaining amount (montant_restant)
+            $client->montant_restant = $group->sum(function ($dette) {
+                return $dette->montant - $dette->paiements->sum('montant');  // Adjust according to your montant calculation
+            });
+
+            return $client->montant_restant;  // Return the client object with montant_restant
+        })->values();
+
+        return $dettesGroupes;
+    }
+
+    public function getDetteNonSoldesPassed(){
+        $dateNow = date('Y-m-d');
+        $dettes = $this->model->nonSoldes()
+            ->with(['client'])  // Load the client relationship
+            ->join('clients', 'dettes.client_id', '=', 'clients.id')
+            ->whereDate('dettes.created_at', '<', $dateNow)
+            ->select('dettes.*', 'clients.*')  // Select columns from both tables
+            ->get();
+
+        $dettesGroupes = $dettes->groupBy('client_id')->map(function ($group) {
+            $client = $group->first()->client;  // Get the client from the first record
+
+            // Calculate the remaining amount (montant_restant)
+            $client->montant_restant = $group->sum(function ($dette) {
+                return $dette->montant - $dette->paiements->sum('montant');
+            });
+
+            return $client;  // Return the client object with montant_restant
+        })->values();
+
         return $dettesGroupes;
     }
 }

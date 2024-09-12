@@ -53,7 +53,9 @@ class StoreClientRequest extends FormRequest
         $rules = [
             'surname' => ['required', 'string', 'max:255','unique:clients,surname'],
             'adresse' => ['string', 'max:255'],
-            'telephone' => ['required',new TelephoneRule()],
+            'telephone' => ['required',new TelephoneRule(),'unique:clients,telephone'],
+            'categorie' => ['required','exists:categories,id'],
+            'montant_max' => ['numeric', 'min:0', 'required_if:categorie,2'],
             
             'user' => ['sometimes','array'],
             'user.photo' => 'required_with:user|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -92,7 +94,13 @@ class StoreClientRequest extends FormRequest
             'photo.required' => "La photo est obligatoire.",
             'photo.image' => "La photo doit être une image.",
             'photo.mimes' => "La photo doit être au format jpeg, png, jpg ou gif.",
-            'photo.max' => "La photo ne doit pas dépasser 2048 Ko."
+            'photo.max' => "La photo ne doit pas dépasser 2048 Ko.",
+            'categorie.required' => "La catégorie est obligatoire.",
+            'categorie.exists' => "La catégorie n'existe pas.",
+            'montant_max.numeric' => "Le montant maximum doit être un nombre.",
+            'montant_max.min' => "Le montant maximum doit être supérieur ou égal à 0.",
+            'montant_max.required_if' => "Le montant maximum est obligatoire si la catégorie est '2'.",
+            'telephone.unique' => "Ce téléphone est déjà utilisé."
         ];
     }
 

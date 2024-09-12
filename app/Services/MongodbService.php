@@ -6,19 +6,22 @@ use App\Facades\ClientRepositoryFacade;
 use App\Models\MongoDette;
 use Illuminate\Support\Facades\Log;
 use App\Contracts\ArchiveServiceInt;
+use App\Facades\DetteRepositoryFacade;
 
-class MongodbService implements ArchiveServiceInt{
+class MongodbService implements ArchiveServiceInt
+{
 
 
-    public function archive($request){
+    public function archive($request)
+    {
         // Retrieve dettes from the facade
         $dettes = ClientRepositoryFacade::getClientWithDebtswithArticle();
 
-        
+
         Log::debug('Dettes non soldes', [
             'dettes' => $dettes
         ]);
-        
+
         // Transform the data to match the required format
         $formattedData = $this->formatDettes($dettes);
 
@@ -43,22 +46,25 @@ class MongodbService implements ArchiveServiceInt{
             $client = $clientData['client'];
             $debtsCollection = $client['debts'];
 
+
             // Prepare client data with nested debts and articles
             $formattedData[] = [
                 'client' => [
                     'name' => $client['name'],
                     'phone' => $client['phone'],
-                    'dettes' => $debtsCollection->map(function ($debt) {
+                    'dettes' => $debtsCollection->mapWithKeys(function ($debt,$id) {
                         return [
-                            'amount' => $debt['amount'],
-                            'status' => $debt['status'],
-                            'articles' => $debt['articles']->map(function ($article) {
-                                // Handle articles; if there are no articles, it will return an empty array
-                                return [
-                                    'article_name' => $article["name"] ?? 'Unknown',
-                                    'price' => $article["price"] ?? 0
-                                ];
-                            })->toArray(),
+                            $id => [
+                                'amount' => $debt['amount'],
+                                'status' => $debt['status'],
+                                'articles' => $debt['articles']->map(function ($article) {
+                                    // Handle articles; if there are no articles, it will return an empty array
+                                    return [
+                                        'article_name' => $article["name"] ?? 'Unknown',
+                                        'price' => $article["price"] ?? 0
+                                    ];
+                                })->toArray(),
+                            ]
                         ];
                     })->toArray()
                 ],
@@ -69,4 +75,55 @@ class MongodbService implements ArchiveServiceInt{
 
         return $formattedData;
     }
+
+    public function GetArchivedDebts(){
+        $dettes = MongoDette::all();
+        return $dettes;
+    }
+
+    public function GetArchivedDebtsByPhone($id){
+        $client = ClientRepositoryFacade::find($id);
+
+        $debts = MongoDette::where('client.phone','=', "772157477")->get();
+        return $debts;
+    }
+
+    public function getArchivedDebtById($idDette){
+        $debt = MongoDette::where('client.dettes.'. $idDette, 'exists', true)->first();
+        return $debt;
+    }
+
+    public function RestoreById($idDette){
+        $debt = MongoDette::where('client.dettes.'. $idDette, 'exists', true)->first();
+        DetteRepositoryFacade::restore($debt->id);
+        $debt->delete();
+
+        return $debt;
+    }
+
+
+    public function restoreByClient($clientId){
+        $client = ClientRepositoryFacade::find($clientId);
+        
+        $dettes = MongoDette::where('client.phone','=', "772157477")->get();
+
+        foreach($dettes as $dette){
+            DetteRepositoryFacade::restore($dette->id);
+            $dette->delete();
+        }
+
+        return $dettes;
+    }
+
+    public function restoreByDate($date){
+        $dettes = MongoDette::all();
+
+        foreach($dettes as $dette){
+            DetteRepositoryFacade::restore($dette->id);
+            $dette->delete();
+        }
+
+        return $dettes;
+    }
+    
 }

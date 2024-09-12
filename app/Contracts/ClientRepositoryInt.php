@@ -10,4 +10,5 @@ interface ClientRepositoryInt{
     public function delete($id);
     public function dettes($id);
     public function getClientWithDebtswithArticle();
+    public function getByUserId($userId);
 }

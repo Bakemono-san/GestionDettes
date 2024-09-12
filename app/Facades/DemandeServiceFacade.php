@@ -2,12 +2,13 @@
 
 namespace App\Facades;
 
+use App\Contracts\DemandeServiceInt;
 use Illuminate\Support\Facades\Facade;
 
-class FirebaseServiceFacade extends Facade
+class DemandeServiceFacade extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return 'firebase';
+        return DemandeServiceInt::class;
     }
 }

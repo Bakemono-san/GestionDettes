@@ -25,6 +25,10 @@ class Article extends Model
             ->withTimestamps();
     }
 
+    public function demandes(){
+        return $this->belongsToMany(Demandes::class)->withPivot('quantite');
+    }
+
     public function scopeDisponible($query, $disponible)
     {
         if ($disponible === 'false') {

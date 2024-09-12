@@ -47,6 +47,10 @@ class ClientRepository implements ClientRepositoryInt
         return $this->model->find($id);
     }
 
+    public function getByUserId($userId){
+        return $this->model->where('user_id', $userId)->first();
+    }
+
     public function create($clientData)
     {
         // Create the client
@@ -109,19 +113,21 @@ class ClientRepository implements ClientRepositoryInt
                     'client' => [
                         'name' => $client->surname,
                         'phone' => $client->telephone,
-                        'debts' => $client->dettes->map(function ($dette) {
+                        'debts' => $client->dettes->mapWithKeys(function ($dette) {
                             return [
-                                'amount' => $dette->montant,
-                                'status' => 'settled',
-                                'articles' => $dette->articles->mapWithKeys(function ($article) {
-                                    return [
-                                        $article->id => [
-                                            'name' => $article->libelle,
-                                            'price' => $article->prix,
-                                        ]
-                                    ];
-                                }),
-                                DetteRepositoryFacade::delete($dette->id)
+                                $dette->id => [
+                                    'amount' => $dette->montant,
+                                    'status' => 'settled',
+                                    'articles' => $dette->articles->mapWithKeys(function ($article) {
+                                        return [
+                                            $article->id => [
+                                                'name' => $article->libelle,
+                                                'price' => $article->prix,
+                                            ]
+                                        ];
+                                    }),
+                                ]
+                                // DetteRepositoryFacade::delete($dette->id)
 
                             ];
                         }),
@@ -129,8 +135,13 @@ class ClientRepository implements ClientRepositoryInt
                 ];
             });
 
+        $datas = [];
+        foreach ($clients as $key => $client) {
+            $datas[] = $client;
+        }
+
         // Return or output the result
 
-        return $clients;
+        return $datas;
     }
 }

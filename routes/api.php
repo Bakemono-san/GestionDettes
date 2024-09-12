@@ -1,12 +1,15 @@
 <?php
 
+use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\ArticlesController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AuthController2;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\DemandesController;
 use App\Http\Controllers\DetteController;
 use App\Http\Controllers\FirebaseController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\sendNotification;
 use App\Http\Controllers\userController;
 use App\Http\Middleware\FormatResponse;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +35,26 @@ Route::get('/test-email', function () {
 
     return 'Email sent!';
 });
+
+Route::post('notification/client/all',[sendNotification::class,'sendGroupe'])->name('sendNotification.all');
+Route::post('notification/client/message',[sendNotification::class,'sendGroupeMessage'])->name('sendNotification.all');
+
+Route::post('/demandes',[DemandesController::class,'store'])->name('demandes.create')->middleware('auth:api');
+
+Route::get('/demandes',[DemandesController::class,'getMyDemandes'])->middleware('auth:api');
+Route::get('demandes/notifications/client',[DemandesController::class,'getNotifications'])->middleware('auth:api');
+Route::get('demandes/all',[DemandesController::class,'index']);
+Route::get('demandes/notifications',[DemandesController::class,'getNotificationsDemandes'])->middleware('auth:api');
+Route::get('demandes/{id}/disponible',[DemandesController::class,'getDemandesArticles'])->middleware('auth:api');
+Route::patch('demandes/{id}', [DemandesController::class, 'traiterDemande'])->middleware('auth:api');
+
+
+Route::get('archive/clients/{id}/dettes', [ArchiveController::class, 'getByClient'])->name('archive.index');
+Route::get('archive/dettes/{id}', [ArchiveController::class, 'getDebtByIdDette'])->name('archive.getByIdDette');
+Route::get('dettes/archive', [ArchiveController::class, 'getAll'])->name('archive.getAll');
+Route::get('restaure/{date}', [ArchiveController::class, 'restoreByDate'])->name('restore.date');
+Route::get('restaure/dette/{id}', [ArchiveController::class, 'restoreById'])->name('restore.date');
+Route::get('restaure/client/{id}', [ArchiveController::class, 'restoreByClient'])->name('restore.date');
 
 
 Route::get('/firebase', [FirebaseController::class, 'index']);

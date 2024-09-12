@@ -7,6 +7,7 @@ use App\Contracts\ArticleRepositoryImpl;
 use App\Contracts\ArticleServiceInt;
 use App\Contracts\ClientRepositoryInt;
 use App\Contracts\ClientServiceInt;
+use App\Contracts\DemandeServiceInt;
 use App\Contracts\DetteRepositoryInt;
 use App\Contracts\DetteServiceInt;
 use App\Contracts\InfoBipServiceInt;
@@ -26,6 +27,7 @@ use App\Repositories\PaiementRepository;
 use App\Repositories\UserRepository;
 use App\Services\ArticleService;
 use App\Services\ClientService;
+use App\Services\DemandeService;
 use App\Services\DetteService;
 use App\Services\FirebaseService;
 use App\Services\InfoBipService;
@@ -60,6 +62,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(PaiementRepositoryInt::class,PaiementRepository::class);
         $this->app->singleton(PaiementServiceInt::class,PaiementService::class);
         $this->app->singleton('firebase',FirebaseService::class);
+        $this->app->singleton('mongoService',MongodbService::class);
+        $this->app->singleton(InfoBipService::class, InfoBipService::class);
+        $this->app->singleton(TwilioService::class, TwilioService::class);
+        $this->app->singleton(DemandeServiceInt::class, DemandeService::class);
         $this->app->singleton(SmsService::class,function($app){
             $SmsDriver = env('SmsDriver','infobip');
             if ($SmsDriver == 'infobip') {

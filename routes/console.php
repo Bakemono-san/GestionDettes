@@ -3,6 +3,7 @@
 use App\Jobs\Archivage;
 use App\Jobs\SaveToMongoJob;
 use App\Jobs\SendSms;
+use App\Jobs\SendSmsPasser;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -24,4 +25,5 @@ Artisan::command('inspire', function () {
 
 
 Schedule::job(new Archivage())->everyMinute();
-Schedule::job(new SendSms)->everyMinute();
+// Schedule::job(new SendSms)->everyMinute();
+// Schedule::job(new SendSmsPasser)->everyMinute();

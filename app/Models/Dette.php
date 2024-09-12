@@ -6,13 +6,14 @@ use App\Observers\DetteObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[ObservedBy([DetteObserver::class])]
 class Dette extends Model
 {
-    use HasFactory;
+    use HasFactory,SoftDeletes;
 
-    protected $fillable = ['montant', 'client_id'];
+    protected $fillable = ['montant', 'client_id','id'];
 
     protected $appends = ["montant_verse", "montant_restant"];
 
