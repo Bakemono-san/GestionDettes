@@ -912,6 +912,32 @@ paths:
                     type: object
                     additionalProperties:
                       type: string
+  /demandes/{id}/relance:
+    post:
+      summary: Relance une demande
+      tags:
+        - Demandes
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the demande to retrieve
+      responses:
+        '200':
+          description: Demande relancée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Demande'
+        '404':
+          description: Demande non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 
 
 components:

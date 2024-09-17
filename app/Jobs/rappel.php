@@ -42,7 +42,7 @@ class SendSms implements ShouldQueue
             $montantDette = $client->montant_restant;
             $message = 'Bonjour '.$surname.' Vous nous devez  a ce jour '.$montantDette.' fcfa. merci de bien vouloir regler votre dette avant la fin du mois';
             
-            $user->notify(new NotificationsSendSms($telephone,$message));
+            $user->notify(new NotificationsSendSms($telephone,$message,'rappel'));
             // $smsService->sendSms($telephone,$message);
 
         }

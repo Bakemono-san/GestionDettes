@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Facades\DetteRepositoryFacade;
 use App\Models\MongoDette;
 use Illuminate\Support\Facades\Log;
 

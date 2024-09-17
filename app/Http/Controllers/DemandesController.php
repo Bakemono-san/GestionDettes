@@ -4,15 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Facades\ClientRepositoryFacade;
 use App\Facades\DemandeServiceFacade;
-use App\Facades\DetteRepositoryFacade;
-use App\Facades\DetteServiceFacade;
 use App\Facades\UserRepositoryFacade;
 use App\Http\Requests\StoreDemandeRequest;
 use App\Models\Demandes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class DemandesController extends Controller
@@ -106,7 +102,8 @@ class DemandesController extends Controller
     public function relance($id){
         $demandes = Demandes::find($id);
 
-        DemandeServiceFacade::relance($demandes);
+        $demande = DemandeServiceFacade::relance($demandes);
+        return compact('demande');
     }
 
     public function getNotificationsDemandes(){

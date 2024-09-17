@@ -29,7 +29,7 @@ class demandeCreation implements ShouldQueue
         $boutiquiers = UserRepositoryFacade::getBoutiquiers();
 
         foreach ($boutiquiers as $boutiquier) {
-            $boutiquier->notify(new \App\Notifications\SendSms('785953562', 'Une demande de création de compte a été reçue'));
+            $boutiquier->notify(new \App\Notifications\SendSms('785953562', 'Une demande de création de compte a été reçue','demande'));
         }
     }
 }
