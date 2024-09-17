@@ -45,7 +45,7 @@ class StoreArticleRequest extends FormRequest
             'user_id' => ['required', 'numeric', 'max:255','exists:users,id'],
             'prix' => ['required', 'numeric','min:1'],
             'quantite' => ['required', 'numeric','min:1'],
-
+            'seuil' => ['required', 'numeric','min:1'],
         ];
 
 

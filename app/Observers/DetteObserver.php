@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Jobs\attachAndUpdate;
 use App\Jobs\paiement;
 use App\Models\Dette;
+use Illuminate\Support\Facades\DB;
 
 class DetteObserver
 {
@@ -13,18 +14,22 @@ class DetteObserver
      */
     public function created(Dette $dette): void
     {
-        $request = request();
+        DB::transaction(function () use ($dette) {
 
-        $articles = $request->input('articles');
-        if ($request->has('articles')) {
-            attachAndUpdate::dispatch($articles, $dette);
-        }
+            $dette->save();
+            $request = request();
 
-        if ($request->has('paiement')) {
-            $paiement = $request->input('paiement');
-            $paiement['dette_id'] = $dette->id;
-            paiement::dispatch($paiement);
-        }
+            $articles = $request->input('articles');
+            if ($request->has('articles')) {
+                attachAndUpdate::dispatch($articles, $dette);
+            }
+
+            if ($request->has('paiement')) {
+                $paiement = $request->input('paiement');
+                $paiement['dette_id'] = $dette->id;
+                paiement::dispatch($paiement);
+            }
+        });
     }
 
     /**

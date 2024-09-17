@@ -16,6 +16,7 @@ class SendSms extends Notification implements ShouldQueue
 
     protected $message;
     protected $recipient;
+    protected $type;
 
     /**
      * Create a new notification instance.
@@ -23,10 +24,11 @@ class SendSms extends Notification implements ShouldQueue
      * @param string $recipient
      * @param string $message
      */
-    public function __construct($recipient, $message)
+    public function __construct($recipient, $message,$type)
     {
         $this->recipient = $recipient;
         $this->message = $message;
+        $this->type = $type;
     }
 
     /**
@@ -58,6 +60,7 @@ class SendSms extends Notification implements ShouldQueue
         return [
             'message' => $this->message,
             'recipient' => $this->recipient,
+            'type' => $this->type,
         ];
     }
 }

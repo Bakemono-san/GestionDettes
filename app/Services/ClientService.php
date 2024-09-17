@@ -36,7 +36,7 @@ class ClientService implements ClientServiceInt
     {
         try {
 
-            $clientData = $request->only('surname', 'adresse', 'telephone');
+            $clientData = $request->only('surname', 'adresse', 'telephone','categorie_id','montant_max');
 
             DB::beginTransaction();
 

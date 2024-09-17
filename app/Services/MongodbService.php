@@ -10,13 +10,21 @@ use App\Facades\DetteRepositoryFacade;
 
 class MongodbService implements ArchiveServiceInt
 {
-
+    protected $archivedDebts = [];
 
     public function archive($request)
     {
         // Retrieve dettes from the facade
         $dettes = ClientRepositoryFacade::getClientWithDebtswithArticle();
 
+        foreach ($dettes as $value) {
+            $debts = $value['client']['debts'];
+            $firstKey = $debts->keys()->first();
+            if (in_array($firstKey, $this->archivedDebts)) {
+                continue;
+            }
+            $this->archivedDebts[] = $firstKey;
+        }
 
         Log::debug('Dettes non soldes', [
             'dettes' => $dettes

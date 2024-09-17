@@ -54,7 +54,7 @@ class StoreClientRequest extends FormRequest
             'surname' => ['required', 'string', 'max:255','unique:clients,surname'],
             'adresse' => ['string', 'max:255'],
             'telephone' => ['required',new TelephoneRule(),'unique:clients,telephone'],
-            'categorie' => ['required','exists:categories,id'],
+            'categorie_id' => ['required','exists:categories,id'],
             'montant_max' => ['numeric', 'min:0', 'required_if:categorie,2'],
             
             'user' => ['sometimes','array'],
@@ -63,6 +63,7 @@ class StoreClientRequest extends FormRequest
             'user.prenom' => ['required_with:user','string'],
             'user.login' => ['required_with:user','string'],
             'user.password' => ['required_with:user', new CustumPasswordRule(),'confirmed'],
+            'user.etat' => ['required_with:user','in:true,false'],
 
         ];
 /*

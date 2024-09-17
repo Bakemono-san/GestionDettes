@@ -99,13 +99,8 @@ class ClientController extends Controller
      */
     public function store(StoreClientRequest $request, User $user)
     {
-        // $clientData = $request->only('surname', 'adress', 'telephone');
-        // $photo = $request->file('user.photo');
-
-        // $userData = $request->has('user') ? $request->user : null;
         $client = ClientServiceFacade::create($request);
         return compact('client');
-        // return $this->sendResponse($client, StateEnum::SUCCESS, 'client créé avec success', 201);
     }
 
 

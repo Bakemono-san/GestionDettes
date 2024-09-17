@@ -9,7 +9,7 @@ class Paiement extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['montant', 'dette_id'];
+    protected $fillable = ['montant', 'dette_id','id'];
 
     public function dette(){
         return $this->belongsTo(Dette::class);

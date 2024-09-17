@@ -28,10 +28,8 @@ class FirebaseService implements ArchiveServiceInt
 
     public function archive($request)
     {
-        foreach($request as $key => $value){
-
-            $newData = $this->database->getReference('archives/'.date('Y-m-d').'/')->push($value);
-        }
+        $newData = $this->database->getReference('archives/'.date('Y-m-d').'/')->push($request);
+      
         return response()->json($newData->getValue());
     }
 
@@ -60,7 +58,8 @@ class FirebaseService implements ArchiveServiceInt
         foreach ($debts as $dateKey => $dateData) {
             // Loop through each record under the date
             foreach ($dateData as $recordKey => $recordData) {
-                if (isset($recordData['client']['phone']) && $recordData['client']['phone'] === $telephone) {
+                $recordData[0]['client']['debts'] = array_filter($recordData[0]['client']['debts']);
+                if (isset($recordData[0]['client']['phone']) && $recordData[0]['client']['phone'] === $telephone) {
                     $recordData["date"] = $dateKey;
                     $recordData['recordKey'] = $recordKey;
                     $filteredResults[] = $recordData;
@@ -75,9 +74,9 @@ class FirebaseService implements ArchiveServiceInt
 
         $filteredResults = null;
         foreach ($debts as $dateKey => $dateData) {
-            // Loop through each record under the date
             foreach ($dateData as $recordKey => $recordData) {
-                if (key($recordData['client']['debts']) == $idDette) {
+                $recordData[0]['client']['debts'] = array_filter($recordData[0]['client']['debts']);
+                if (key($recordData[0]['client']['debts']) == $idDette) {
                     $recordData['recordKey'] = $recordKey;
                     $recordData['date'] = $dateKey;
                     $filteredResults = $recordData;
@@ -94,7 +93,8 @@ class FirebaseService implements ArchiveServiceInt
         if(!$debt){
             return "dette non trouve";
         }
-        $this->database->getReference('archives/'.$debt['date'].'/'.$debt['recordKey'].'/client/debts/'.$idDette)->remove();
+
+        $this->database->getReference('archives/'.$debt['date'].'/'.$debt['recordKey'].'/0/client/debts/'.(int)$idDette)->remove();
 
 
         $dette = DetteRepositoryFacade::restore($idDette);
@@ -108,7 +108,8 @@ class FirebaseService implements ArchiveServiceInt
         $dette_ids = [];
         foreach($archivedDebts as $dette){
             $date = $dette['date'];
-            $dette_ids[] = key($dette['client']['debts']);
+            
+            $dette_ids[] = key($dette[0]['client']['debts']);
         }
         foreach($archivedDebts as $dette){
             $this->database->getReference('archives/'.$date.'/'.$dette['recordKey'])->remove();
@@ -121,17 +122,28 @@ class FirebaseService implements ArchiveServiceInt
         return $archivedDebts;
     }
 
-    public function restoreByDate($date){
-
-        $dettes = $this->GetArchivedDebtsByDate($date);
-
-        
-        $detteRestored = [];
-        foreach ($dettes as $key => $value) {
-            dd($value);
-            $detteRestored[] = DetteRepositoryFacade::restore(key($value['client']['debts']));
-            $this->database->getReference('archives/'.$date)->remove();
+    public function restoreByDate($date)
+{
+    $dettes = $this->GetArchivedDebtsByDate($date);
+    
+    $detteRestored = [];
+    
+    foreach ($dettes as $key => $value) {
+        if (isset($value[0]['client']['debts']) && is_array($value[0]['client']['debts'])) {
+            $value[0]['client']['debts'] = array_filter($value[0]['client']['debts']);
+            
+            foreach ($value[0]['client']['debts'] as $debtKey => $debt) {
+                
+                // Restore the debt
+                $detteRestored[] = DetteRepositoryFacade::restore($debtKey);
+            }
         }
-        return $detteRestored;
+        
+        // After restoring, remove the archived data for the given date
+        $this->database->getReference('archives/'.$date)->remove();
     }
+    
+    return $detteRestored;
+}
+
 }

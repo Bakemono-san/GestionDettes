@@ -12,7 +12,7 @@ security:
   
 
 paths:
-  /v1/login:
+  /login:
     post:
       summary: Authenticate a user
       tags:
@@ -24,13 +24,13 @@ paths:
             schema:
               type: object
               properties:
-                email:
+                login:
                   type: string
                   format: email
-                  example: user@example.com
+                  example: bakemono_san
                 password:
                   type: string
-                  example: password123
+                  example: Pourquoipas34$
       responses:
         '200':
           description: Successful login
@@ -87,7 +87,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /v1/users:
+  /users:
     get:
       summary: Get a list of users
       tags:
@@ -132,7 +132,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /v1/users/{id}:
+  /users/{id}:
     get:
       summary: Get a user by ID
       tags:
@@ -157,6 +157,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+
+  /register:
+    post:
+      summary: Register a user for a client
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userForClientRequest'
+      responses:
+        '201':
+          description: User and client created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/UserResource'
+                  client:
+                    $ref: '#/components/schemas/ClientResource'
 
   /v1/clients:
     get:
@@ -221,24 +245,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    post:
-      summary: Register a user for a client
-      tags:
-        - Users
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: The ID of the client for whom to register a user
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/StoreUserRequest'
-      responses:
         '201':
           description: User registered successfully
           content:
@@ -430,6 +436,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /v1/articles/libelle:
+    post:
+      summary: Get articles by libelle
+      tags:
+        - Articles
+      parameters:
+        - in: query
+          name: libelle
+          required: true
+          schema:
+            type: string
+          description: The libelle of the articles to retrieve
+      responses:
+        '200':
+          description: A list of articles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Article'
+        '404':
+          description: Article not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /v1/articles/stock:
     post: 
       summary: Update article stock
@@ -446,7 +480,440 @@ paths:
           description: Article updated successfully
         '404':
           description: Article not found
-          
+  
+  /v1/dettes:
+    get:
+      summary: Get a list of all dettes
+      description: Returns all debts
+      tags:
+        - Dettes
+      responses:
+        '200':
+          description: A list of dettes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dette'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create a new demande
+      tags:
+        - Dettes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreDetteRequest'
+      responses:
+        '201':
+          description: Dette created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dette'
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+  /v1/dettes/{id}:
+    get:
+      summary: Get a specific dette
+      description: Returns a specific debt record by its ID
+      tags:
+        - Dettes
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the dette to retrieve
+      responses:
+        '200':
+          description: A single dette
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dette'
+        '404':
+          description: Dette not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  
+  /v1/dettes/{id}/articles:
+    get:
+      summary: Get articles related to a dette
+      description: Returns the articles linked to a specific dette
+      tags:
+        - Dettes
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the dette
+      responses:
+        '200':
+          description: List of articles related to the dette
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Article'
+        '404':
+          description: Dette not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /v1/dettes/{id}/paiements:
+    get:
+      summary: Get paiements related to a dette
+      description: Returns the list of paiements for a specific dette
+      tags:
+        - Dettes
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the dette
+      responses:
+        '200':
+          description: List of paiements related to the dette
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Paiement'
+        '404':
+          description: Dette not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /v1/dettes/{id}/payer:
+    post:
+      summary: Make a payment for a dette
+      description: Pay a portion or full amount of a dette
+      tags:
+        - Dettes
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the dette
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorePaiementRequest'
+      responses:
+        '200':
+          description: Payment successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dette'
+        '400':
+          description: Invalid payment data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  /demandes/{id}/disponible:
+    get:
+      summary: Get articles stats for a demande
+      tags:
+        - Demandes
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the demande
+      responses:
+        '200':
+          description: Article stats for the demande
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ArticleStats'
+        '404':
+          description: Demande not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /demandes/notifications:
+    get:
+      summary: Get notifications for demandes
+      tags:
+        - Demandes
+      responses:
+        '200':
+          description: Notifications for demandes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+        '404':
+          description: Demande not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /demandes/all:
+    get:
+      summary: Get a list of all demandes
+      tags:
+        - Demandes
+      responses:
+        '200':
+          description: A list of demandes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Demande'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /demandes/{id}:
+    patch:
+      summary: Traiter une demande
+      tags:
+        - Demandes
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the demande to retrieve
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TraitementDemandeRequest'
+      responses:
+        '200':
+          description: Demande traitée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Demande'
+        '404':
+          description: Demande non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /demandes/notifications/client:
+    get:
+      summary: Get notifications for demandes
+      tags:
+        - Demandes
+      responses:
+        '200':
+          description: Notifications for demandes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+        '404':
+          description: Demande not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /demandes:
+    get:
+      summary: Get a list of my demandes
+      tags:
+        - Demandes
+      responses:
+        '200':
+          description: A list of my demandes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Demande'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create a new demande
+      tags:
+        - Demandes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreDemandeRequest'
+      responses:
+        '201':
+          description: Demande created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Demande'
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /demandes/notifications/test:
+    get:
+      summary: Get notifications of responses
+      tags:
+        - Demandes
+      responses:
+        '200':
+          description: Notifications for responses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+        '404':
+          description: Demande not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /notification/client/all:
+    post:
+      summary: Send group notification to clients
+      description: Sends a reminder notification to all clients with their outstanding debts.
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendGroupeRequest'
+      responses:
+        '200':
+          description: Notifications sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  clients:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: ID of the client
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  erreur:
+                    type: object
+                    additionalProperties:
+                      type: string
+
+  /notification/client/message:
+    post:
+      summary: Send custom message to clients
+      description: Sends a custom message to all clients.
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendGroupeMessageRequest'
+      responses:
+        '200':
+          description: Notifications sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  clients:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: ID of the client
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  erreur:
+                    type: object
+                    additionalProperties:
+                      type: string
+
+
 components:
   securitySchemes:
     BearerAuth:
@@ -596,24 +1063,60 @@ components:
         login:
           type: string
           example: bakemono
-        
+        photo:
+          type: string
+          format: binary
+
+    userForClientRequest:
+      type: object
+      required:
+        - login
+        - password
+        - nom
+        - prenom
+        - etat
+        - role_id
+        - client_id
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+        nom:
+          type: string
+        prenom:
+          type: string
+        etat:
+          type: string
+          enum: [true, false]
+        role_id:
+          type: integer
+        client_id:
+          type: integer  
 
     StoreClientRequest:
       type: object
       properties:
-        name:
+        surname:
           type: string
           example: Jane Doe
-        phone:
+        telephone:
           type: string
           example: +1234567890
-        address:
+        adress:
           type: string
           example: 123 Main St
         photo:
           type: string
           format: uri
           example: http://example.com/photo.jpg
+        categorie_id:
+          type: integer
+        montant_max:
+          type: number
+          format: float
+          example: 1000.00
+        
 
     UpdateArticleRequest:
       type: object
@@ -638,3 +1141,296 @@ components:
           format: float
         quantite:
           type: integer
+        seuil:
+          type: integer
+    
+    ArticleStats:
+      type: object
+      properties:
+        article_id:
+          type: string
+          example: 123
+        article_name:
+          type: string
+          example: Article X
+        article_quantite_commande:
+          type: integer
+          example: 10
+        article_quantite:
+          type: integer
+          example: 5
+        disponible:
+          type: boolean
+          example: true
+    
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 123
+        demande_id:
+          type: string
+        user_id:
+          type: string
+        message:
+          type: string
+          example: Demande de retrait de produit Article X est disponible.
+        date:
+          type: string
+        seen:
+          type: boolean
+          example: false
+        read:
+          type: boolean
+          example: false
+      
+    ClientResource:
+      type: object
+      properties:
+        id:
+          type: integer
+        nom:
+          type: string
+        prenom:
+          type: string
+        email:
+          type: string
+        user_id:
+          type: integer
+    
+    UserResource:
+      type: object
+      properties:
+        id:
+          type: string
+        nom:
+          type: string
+        prenom:
+          type: string
+        login:
+          type: string
+        role_id:
+          type: integer
+        etat:
+          type: string
+        password:
+          type: string
+
+    StorePaiementRequest:
+      type: object
+      required:
+        - montant
+      properties:
+        montant:
+          type: number
+          format: float
+          description: Amount of the payment
+          example: 100.50
+    
+    Paiement:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the payment
+        montant:
+          type: number
+          format: float
+          description: Amount of the payment
+        created_at:
+          type: string
+          format: date-time
+          description: Date and time when the payment was created
+        updated_at:
+          type: string
+          format: date-time
+          description: Date and time when the payment was last updated
+    
+    StoreDetteRequest:
+      type: object
+      required:
+        - montant
+        - client_id
+        - articles
+      properties:
+        montant:
+          type: number
+          format: float
+          description: Amount of the debt
+          example: 100.00
+        client_id:
+          type: integer
+          description: ID of the client associated with the debt
+          example: 1
+        articles:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - quantite
+              - prixVente
+            properties:
+              id:
+                type: integer
+                description: ID of the article
+                example: 1
+              quantite:
+                type: integer
+                description: Quantity of the article
+                example: 2
+              prixVente:
+                type: number
+                format: float
+                description: Selling price of the article
+                example: 50.00
+        paiement:
+          type: object
+          properties:
+            montant:
+              type: number
+              format: float
+              description: Amount of the payment
+              example: 50.00
+    Dette:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the debt
+        montant:
+          type: number
+          format: float
+          description: Amount of the debt
+        client_id:
+          type: integer
+          description: ID of the client associated with the debt
+        articles:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              quantite:
+                type: integer
+              prixVente:
+                type: number
+                format: float
+        paiement:
+          type: object
+          properties:
+            montant:
+              type: number
+              format: float
+        created_at:
+          type: string
+          format: date-time
+          description: Date and time when the debt was created
+        updated_at:
+          type: string
+          format: date-time
+          description: Date and time when the debt was last updated
+    StoreDemandeRequest:
+      type: object
+      required:
+        - montant
+        - articles
+      properties:
+        montant:
+          type: number
+          format: float
+          description: Amount of the demand
+          example: 150.00
+        articles:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - quantite
+            properties:
+              id:
+                type: integer
+                description: ID of the article
+                example: 2
+              quantite:
+                type: integer
+                description: Quantity of the article
+                example: 5
+    Demande:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the demand
+        montant:
+          type: number
+          format: float
+          description: Amount of the demand
+        articles:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              quantite:
+                type: integer
+        created_at:
+          type: string
+          format: date-time
+          description: Date and time when the demand was created
+        updated_at:
+          type: string
+          format: date-time
+          description: Date and time when the demand was last updated
+    SendGroupeRequest:
+      type: object
+      required:
+        - clients
+      properties:
+        clients:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                type: integer
+                description: ID of the client
+                example: 1
+
+    SendGroupeMessageRequest:
+      type: object
+      required:
+        - clients
+        - message
+      properties:
+        clients:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                type: integer
+                description: ID of the client
+                example: 1
+        message:
+          type: string
+          description: Custom message to send to clients
+          example: "Please settle your outstanding debt before the end of the month."
+    
+    TraitementDemandeRequest:
+      type: object
+      required:
+        - reponse
+      properties:
+        reponse:
+          type: string
+          description: Response to the demand
+          example: Valider

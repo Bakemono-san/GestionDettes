@@ -14,11 +14,14 @@ class Client extends Model
 
     // public mixed $user_id;
     protected $fillable = [
+        'id',
         'surname',
         'adresse',
         'telephone',
         'user_id',
         'qrcode',
+        'categorie_id',
+        'montant_max'
     ];
     protected $hidden = [
         //  'password',

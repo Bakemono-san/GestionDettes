@@ -245,7 +245,9 @@ class userController extends Controller
         
         $client = Client::find($request->input('client_id'));
 
-
+        if($client->user_id){
+            return response()->json(['message' => 'Ce client a deja un utilisateur associé'], 400);
+        }
         $user = User::create($request->except('client_id'));
         $client->user()->associate($user);
         $client->save();

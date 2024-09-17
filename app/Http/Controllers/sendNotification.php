@@ -17,10 +17,10 @@ class sendNotification extends Controller
             $user = UserRepositoryFacade::find($client->user_id);
 
             $montant_Du = DetteRepositoryFacade::getDetteNonSoldesByClient($value['id']);
-            $user->notify(new \App\Notifications\SendSms($client->telephone, 'Vous nous devez a ce jour '.$montant_Du[0].' FCFA. merci de bien vouloir regler votre dette avant la fin du mois'));
+            $user->notify(new \App\Notifications\SendSms($client->telephone, 'Vous nous devez a ce jour '.$montant_Du[0].' FCFA. merci de bien vouloir regler votre dette avant la fin du mois','rappel'));
         }
 
-        return $client;
+        return compact('client');
     }
 
     public function sendGroupeMessage(Request $request){
@@ -31,7 +31,7 @@ class sendNotification extends Controller
             $user = UserRepositoryFacade::find($client->user_id);
 
             $montant_Du = DetteRepositoryFacade::getDetteNonSoldesByClient($value['id']);
-            $user->notify(new \App\Notifications\SendSms($client->telephone,$request->input('message')));
+            $user->notify(new \App\Notifications\SendSms($client->telephone,$request->input('message'),'rappel'));
         }
 
         return $client;

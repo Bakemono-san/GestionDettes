@@ -31,7 +31,7 @@ class ClientPolicy
     public function create(User $user): bool
     {
         // dd($user->role->name == RoleEnum::BOUTIQUIER->value);
-        return $user->role->name == RoleEnum::BOUTIQUIER->value;
+        return $user->role->name == RoleEnum::BOUTIQUIER->value || $user->role->name == RoleEnum::ADMIN;
     }
 
     /**

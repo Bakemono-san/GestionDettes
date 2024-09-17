@@ -22,7 +22,11 @@ class DemandesController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Demandes::where('etat',$request->query('etat'));
+        $query = QueryBuilder::for(Demandes::class);
+        if($request->query->has('etat')) {
+            $query->where('etat',$request->query('etat'));
+        }
+        // $query = Demandes::where('etat',$request->query('etat'));
 
 
         $demandes = $query->get();
@@ -45,10 +49,10 @@ class DemandesController extends Controller
     {
         $user = Auth::user();
 
-        $client = ClientRepositoryFacade::getByUserId(2);
+        $client = ClientRepositoryFacade::getByUserId(3);
 
         $request['client_id'] = $client->id;
-        $demandes =DemandeServiceFacade::createDemande($request);
+        $demandes = DemandeServiceFacade::createDemande($request);
         return compact('demandes');
     }
 
@@ -87,13 +91,13 @@ class DemandesController extends Controller
     public function getMyDemandes(){
         $user = Auth::user();
         $client = ClientRepositoryFacade::getByUserId($user->id);
-        $demandes = Demandes::where('client_id',3)->where('etat','En attente')->get();
+        $demandes = Demandes::where('client_id',$client->id)->where('etat','En attente')->get() ?? null;
         return compact('demandes');
     }
 
     public function getNotifications(){
         $user = Auth::user();
-        $userTest = UserRepositoryFacade::find(2);
+        $userTest = UserRepositoryFacade::find(3);
         $notifications = $userTest->notifications;
 
         return compact('notifications');
@@ -107,7 +111,7 @@ class DemandesController extends Controller
 
     public function getNotificationsDemandes(){
         $user = Auth::user();
-        $userTest = UserRepositoryFacade::find(2);
+        $userTest = UserRepositoryFacade::find(3);
         $notifications = $userTest->unreadNotifications;
         $demandes = [];
 
@@ -120,8 +124,22 @@ class DemandesController extends Controller
         return compact('demandes');
     }
 
+    public function getNotificationsResponse(){
+        $user = Auth::user();   
+        $userTest = UserRepositoryFacade::find(3);
+        $notifications = $userTest->unreadNotifications;
+        $reponses = [];
+
+        foreach($notifications as $notification){
+            if($notification->data["type"] == 'reponse'){
+                $reponses[] = $notification;
+            }
+        }
+        return compact('reponses');
+    }
+
     public function getDemandesArticles($idDemande){
-        DemandeServiceFacade::getDemandeService();
+        $articlesStats = DemandeServiceFacade::getDemandeService($idDemande);
 
         return compact('articlesStats');
     }

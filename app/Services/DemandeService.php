@@ -22,13 +22,17 @@ class DemandeService implements DemandeServiceInt
         $client = ClientRepositoryFacade::find($data->input('client_id'));
         $user = UserRepositoryFacade::find($client->user_id);
         $dettes = DetteRepositoryFacade::getDetteNonSoldesByClient($data->input('client_id'));
+    
+    
+        if(count($dettes) > 0){
 
-        if ($user->role->id == 2 && $dettes[0] + $datas['montant'] > $client->montant_max) {
+            if (count($dettes) > 0 &&  $user->role->id == 2 && $dettes[0] + $datas['montant'] > $client->montant_max) {
                 return "Vous ne pouvez pas avoir plus de dettes veuillez payer vos dette antecedent";
-        }
-
-         if($user->role->id == 3 & $dettes[0] > 0){
+            }
+            
+            if(count($dettes) > 0 && $user->role->id == 3 & $dettes[0] > 0){
                 return "Vous ne pouvez pas passer une demande car vous avez une dettes";
+            }
         }
 
         DB::beginTransaction();
@@ -48,17 +52,17 @@ class DemandeService implements DemandeServiceInt
         if($demande->etat == 'Annule' &&( date('Y-m-d') - $demande->updated_at > 2)){
             $client = ClientRepositoryFacade::find($demande->client_id);
             $user = UserRepositoryFacade::find($client->user_id);
-            $user->notify(new \App\Notifications\SendSms('785953562', 'Une demande de création de compte a été reçue'));
+            $user->notify(new \App\Notifications\SendSms('785953562', 'Une demande de création de compte a été reçue','demande'));
             $demande->etat = 'En attente';
             $demande->save();
         }
     }
 
-    public function sendNotificationAnnulation($clientId,$message){
+    public function sendNotificationAnnulation($clientId,$message,$type){
         $client = ClientRepositoryFacade::find($clientId);
         $user = UserRepositoryFacade::find($client->user_id);
 
-        $user->notify(new \App\Notifications\SendSms($client->telephone, $message));
+        $user->notify(new \App\Notifications\SendSms($client->telephone, $message,$type));
 
         return $client;
     }
@@ -97,9 +101,11 @@ class DemandeService implements DemandeServiceInt
             $articleNames = array_column($articlesDisponibles, 'article_name');
 
             $articlesDisponiblesString = implode(", ", $articleNames);
-            $user->notify(new \App\Notifications\SendSms($client->telephone,'Vous avez des articles indisponibles.Articles disponible: '.$articlesDisponiblesString));
+            $user->notify(new \App\Notifications\SendSms($client->telephone,'Vous avez des articles indisponibles.Articles disponible: '.$articlesDisponiblesString,'demande'));
 
         }
+
+        return $articlesStats;
     }
 
     public function traiterDemande($request, $id){
@@ -132,13 +138,13 @@ class DemandeService implements DemandeServiceInt
             DB::commit();
             
             $demandes->delete();
-            DemandeServiceFacade::sendNotificationAnnulation($demandes->client_id,'veuillez venir recuperer vos articles la dette a ete accepter.');
+            DemandeServiceFacade::sendNotificationAnnulation($demandes->client_id,'veuillez venir recuperer vos articles la dette a ete accepter.','reponse');
 
             return $dette;
 
         }else{
             // send notification
-            DemandeServiceFacade::sendNotificationAnnulation($demandes->client_id,'annulation de votre demande de dette.');
+            DemandeServiceFacade::sendNotificationAnnulation($demandes->client_id,'annulation de votre demande de dette.','demande','reponse');
             $demandes->etat = 'annule';
             $demandes->save();
 

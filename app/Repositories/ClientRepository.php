@@ -126,12 +126,12 @@ class ClientRepository implements ClientRepositoryInt
                                             ]
                                         ];
                                     }),
+                                    // DetteRepositoryFacade::delete($dette->id)
                                 ]
-                                // DetteRepositoryFacade::delete($dette->id)
-
+                                
                             ];
                         }),
-                    ]
+                        ]
                 ];
             });
 

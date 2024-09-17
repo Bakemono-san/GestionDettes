@@ -14,13 +14,13 @@ class ArchiveController extends Controller
     public function getDebtByIdDette($id)
     {
        $dettes=  FirebaseServiceFacade::getArchivedDebtById($id);
-       $dettes = MongoServiceFacade::getArchivedDebtById($id);
+    //    $dettes = MongoServiceFacade::getArchivedDebtById($id);
        return compact('dettes');
     }
 
     public function getByClient($id){
         $dettes=  FirebaseServiceFacade::GetArchivedDebtsByPhone($id);
-        $dettes = MongoServiceFacade::GetArchivedDebtsByPhone($id);
+        // $dettes = MongoServiceFacade::GetArchivedDebtsByPhone($id);
         return compact('dettes');
     }
 
@@ -64,19 +64,19 @@ class ArchiveController extends Controller
 
     public function restoreById(string $id){
         $dette = FirebaseServiceFacade::RestoreById($id);
-        $dette = MongoServiceFacade::RestoreById($id);
+        // $dette = MongoServiceFacade::RestoreById($id);
         return compact('dette');
     }
 
     public function restoreByClient(string $id){
         FirebaseServiceFacade::restoreByClient($id);
-        MongoServiceFacade::restoreByClient($id);
+        // MongoServiceFacade::restoreByClient($id);
         return response()->json(['message' => 'Les dettes du client ont été restaurées']);
     }
 
     public function restoreByDate(string $date){
         FirebaseServiceFacade::restoreByDate($date);
-        MongoServiceFacade::restoreByDate($date);
+        // MongoServiceFacade::restoreByDate($date);
         return response()->json(['message' => 'Les dettes archivées pour la date '.$date.' ont été restaurées']);
     }
 }

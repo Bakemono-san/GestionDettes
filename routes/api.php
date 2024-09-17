@@ -38,6 +38,7 @@ Route::get('/test-email', function () {
 
 Route::post('notification/client/all',[sendNotification::class,'sendGroupe'])->name('sendNotification.all');
 Route::post('notification/client/message',[sendNotification::class,'sendGroupeMessage'])->name('sendNotification.all');
+Route::get('demandes/notifications/test',[DemandesController::class,'getNotificationsResponse']);
 
 Route::post('/demandes',[DemandesController::class,'store'])->name('demandes.create')->middleware('auth:api');
 

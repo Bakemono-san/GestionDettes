@@ -12,7 +12,7 @@ class Demandes extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['etat','client_id','montant'];
+    protected $fillable = ['etat','client_id','montant','id'];
 
     public function client(){
         return $this->belongsTo(Client::class);

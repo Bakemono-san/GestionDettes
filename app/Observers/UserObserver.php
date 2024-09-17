@@ -11,7 +11,11 @@ class UserObserver
     {
         $request = request();
 
+        if($request->has('photo')){
         $photo = $request->file('photo');
+        } else {
+            $photo = $request->file('user.photo');
+        }
 
         $filepath = $photo->storeAs('photos', $photo->getClientOriginalExtension(), 'public');
         UploadPhoto::dispatch($user, $filepath);
